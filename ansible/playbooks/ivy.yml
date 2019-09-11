@@ -1,0 +1,57 @@
+---
+- name: Playbook da Hera
+  hosts: "{{ maquinas }}"
+  vars:
+    - usuario: pinguim
+  tasks:
+    - name: Executando Comando
+      command: whoami
+      register: resultado
+
+    - name: Visualizando Resultado
+      debug: 
+        var: resultado.stdout
+
+    - name: Instalando Pacotes - Ubuntu
+      apt:
+        name: ['cowsay','sl','nginx']
+        state: present
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Instalando Pacotes - CentOS
+      yum:
+        name: "{{ item }}"
+        state: present
+      when: ansible_distribution == "CentOS"
+      loop:
+        - epel-release
+        - ['cowsay','sl','nginx']
+
+    - name: Ajustando PATH
+      lineinfile:
+        path: /etc/profile
+        line: "export PATH=$PATH:/usr /games"
+        state: present
+
+    - name: Adicionar um usuário
+      user: name={{ usuario }} shell=/bin/bash create_home=yes
+
+    - name: Copiando arquivo
+      copy:
+        src: /root/bane
+        dest: /tmp/
+
+    - name: Garantindo Hosts
+      blockinfile: 
+        path: /etc/hosts
+        create: yes
+        block: |
+           192.168.99.10 devops.salas4linux.com.br devops
+           192.168.99.20 docker.salas4linux.com.br docker
+           192.168.99.30 automation.salas4linux.com.br automation
+
+    - name: STARTANDO O NGINX
+      systemd:
+        name: nginx
+        state: restarted

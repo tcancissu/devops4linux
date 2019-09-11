@@ -1,0 +1,19 @@
+- name: Aplicação no Apache
+  template:
+    src: index.html
+    dest: /var/www/html/index.html
+
+- name: Baixando Imagem
+  get_url:
+    url: http://impulsohq.com/wp-content/uploads/2018/09/asa-noturna-Benjamin-Percy-dc-comics.jpg
+    dest: /var/www/html/imagem.jpg
+
+- name: Restartando Apache2 / HTTPD
+  systemd:
+    name: "{{ item.programa }}"
+    state: restarted
+  when: ansible_os_family == item.familia
+  loop:
+  - { programa: "apache2", familia: "Debian" }
+  - { programa: "httpd", familia: "RedHat" }
+

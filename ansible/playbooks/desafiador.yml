@@ -1,0 +1,66 @@
+---
+- name: Playbook Desafiador
+  hosts: "{{ maquinas }}"
+  tasks:
+  
+    - name: PARANDO O NGINX
+      systemd:
+        name: nginx
+        state: stopped
+
+    - name: Removendo o NGINX - Ubuntu
+      apt:
+        name: nginx
+        state: absent
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Removendo o NGINX - CentOS
+      yum:
+        name: nginx
+        state: absent
+      when: ansible_distribution == "CentOS"
+      
+    - name: Instalando Pacotes - Ubuntu
+      apt:
+        name: ['apache2','libapache2-mod-php7.2','php7.2']
+        state: present
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Instalando Pacotes - CentOS
+      yum:
+        name: "{{ item }}"
+        state: present
+      when: ansible_distribution == "CentOS"
+      loop:
+        - epel-release
+        - ['httpd','php']
+
+    - name: Habilitar o modulo php7.2 na Máquinas Ubuntu
+      command: a2enmod php7.2
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Reiniciar o HTTPD
+      systemd:
+        name: httpd
+        state: restarted
+      when: ansible_distribution == "CentOS"
+
+    - name: Reiniciar o Apache2
+      systemd:
+        name: apache2
+        state: restarted
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Criando arquivo index.php
+      lineinfile:
+        path: /root/index.php
+        create: yes
+        line: '<?php echo "Desafio Completo" ?>'
+
+    - name: Copiando arquivo index.php
+      copy:
+        src: /root/index.php
+        dest: /var/www/html/
+
+

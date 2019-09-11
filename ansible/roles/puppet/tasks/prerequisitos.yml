@@ -1,0 +1,12 @@
+- name: Baixando Pacote UBUNTU
+  get_url:
+    url: https://apt.puppetlabs.com/puppet-release-bionic.deb
+    dest: /tmp/puppet.deb
+  when: ansible_distribution == "Ubuntu"
+
+- name: Baixando Pacote CENTOS
+  get_url:
+    url: https://yum.puppet.com/puppet6-release-el-7.noarch.rpm
+    dest: /tmp/puppet.rpm
+  when: ansible_distribution == "CentOS"
+ 

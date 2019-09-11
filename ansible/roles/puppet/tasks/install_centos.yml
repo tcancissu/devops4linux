@@ -1,0 +1,10 @@
+- name: Instalando repositorio - CENTOS
+  yum:
+    name: /tmp/puppet.rpm
+    state: present
+
+- name: Instalando Puppet Agent - CENTOS
+  yum:
+    name: puppet-agent
+    update_cache: yes
+    state: present

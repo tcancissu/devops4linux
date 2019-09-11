@@ -1,0 +1,21 @@
+- name: Criando DataBase
+  mysql_db:
+    name: grayson
+    state: present
+    login_unix_socket: "{{ item.socket }}"
+  when: ansible_os_family == item.familia
+  loop:
+  - { socket: "/var/lib/mysql/mysql.sock", familia: "RedHat" }
+  - { socket: "/var/run/mysqld/mysqld.sock", familia: "Debian" }
+
+- name: Criando Usuario
+  mysql_user:
+    name: robin
+    password: 4linux
+    priv: 'grayson.*:ALL,GRANT'
+    login_unix_socket: "{{ item.socket }}"
+  when: ansible_os_family == item.familia
+  loop:
+  - { socket: "/var/lib/mysql/mysql.sock", familia: "RedHat" }
+  - { socket: "/var/run/mysqld/mysqld.sock", familia: "Debian" }
+
